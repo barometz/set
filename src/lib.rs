@@ -1,6 +1,35 @@
+use rand::seq::SliceRandom;
 use std::collections::HashSet;
-
 mod card;
+
+pub struct Deck(Vec<card::Card>);
+
+impl Deck {
+    pub fn new() -> Deck {
+        let mut rng = rand::thread_rng();
+        let mut cards: Vec<card::Card> = all_cards().into_iter().collect();
+        cards.shuffle(&mut rng);
+        Deck(cards)
+    }
+
+    pub fn deal(&mut self) -> Option<[card::Card; 3]> {
+        if self.0.is_empty() {
+            None
+        } else {
+            Some([
+                self.0.pop().unwrap(),
+                self.0.pop().unwrap(),
+                self.0.pop().unwrap(),
+            ])
+        }
+    }
+}
+
+impl Default for Deck {
+    fn default() -> Self {
+        Deck::new()
+    }
+}
 
 pub fn all_cards() -> HashSet<card::Card> {
     let mut cards = HashSet::<card::Card>::new();
@@ -34,6 +63,8 @@ pub fn check(set: [card::Card; 3]) -> bool {
 
 #[cfg(test)]
 mod test {
+    use std::collections::HashSet;
+
     #[test]
     fn card_counter() {
         let cards = super::all_cards();
@@ -86,5 +117,18 @@ mod test {
             Card::new(Color::Green, Count::One, Shape::Oval, Fill::Dashed),
             Card::new(Color::Green, Count::Two, Shape::Oval, Fill::Open),
         ]));
+    }
+
+    #[test]
+    fn deck() {
+        let mut deals = HashSet::<[super::card::Card; 3]>::new();
+        let mut deck = super::Deck::new();
+        for _ in 0..27 {
+            deals.insert(deck.deal().unwrap());
+        }
+        // A deck can deal three cards 27 times.
+        assert!(deck.deal().is_none());
+        // And all the dealt sets of three are unique.
+        assert_eq!(deals.len(), 27);
     }
 }
