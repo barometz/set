@@ -25,7 +25,11 @@ fn main() {
         table.extend(deck.deal().expect("This deck is missing a few cards."));
     }
 
-    println!("Initial table: {:?}.", table);
+    println!("Initial table:");
+    for card in &table {
+        print!("{}, ", card);
+    }
+    println!();
 
     while !table.is_empty() {
         println!("{} cards on the table.", table.len());
@@ -33,23 +37,23 @@ fn main() {
 
         match found_set {
             Some(cards) => {
-                println!("Found: {:?}", cards);
+                println!("Found: {}, {}, {}.", cards[0], cards[1], cards[2]);
                 for card in &cards {
                     table.remove(card);
                 }
 
                 if table.len() < 12 {
                     if let Some(new_cards) = deck.deal() {
-                    println!("Dealing new cards: {:?}.", new_cards);
+                    println!("Dealing new cards: {}, {}, {}.", new_cards[0], new_cards[1], new_cards[2]);
 
                         table.extend(new_cards);
                     }
                 }
             }
             None => {
+                println!("No sets found.");
                 if let Some(new_cards) = deck.deal() {
-                    println!("No sets found.");
-                    println!("Dealing new cards: {:?}.", new_cards);
+                    println!("Dealing new cards: {}, {}, {}.", new_cards[0], new_cards[1], new_cards[2]);
                     table.extend(new_cards);
                 } else {
                     break;
