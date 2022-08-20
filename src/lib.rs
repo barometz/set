@@ -1,6 +1,6 @@
 use rand::seq::SliceRandom;
 use std::collections::HashSet;
-mod card;
+pub mod card;
 
 pub struct Deck(Vec<card::Card>);
 
@@ -13,7 +13,7 @@ impl Deck {
     }
 
     pub fn deal(&mut self) -> Option<[card::Card; 3]> {
-        if self.0.is_empty() {
+        if self.empty() {
             None
         } else {
             Some([
@@ -22,6 +22,10 @@ impl Deck {
                 self.0.pop().unwrap(),
             ])
         }
+    }
+
+    pub fn empty(&self) -> bool {
+        self.0.is_empty()
     }
 }
 
