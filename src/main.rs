@@ -63,56 +63,84 @@ fn find_set_third_card(table: &HashSet<Card>) -> Option<[Card; 3]> {
     None
 }
 
-fn main() {
-    let mut deck = set::Deck::new();
-    let mut table = HashSet::<Card>::new();
+struct Game {
+    pub deck: set::Deck,
+    pub table: HashSet<Card>,
+    pub sets: HashSet<[Card; 3]>,
+}
 
-    // prepare the table
-    while table.len() < 12 {
-        table.extend(deck.deal().expect("This deck is missing a few cards."));
+/// Playing the game. This sort of mixes game rules and player actions, but it's
+/// fine.
+impl Game {
+    pub fn new() -> Game {
+        let mut game = Game {
+            deck: set::Deck::new(),
+            table: HashSet::new(),
+            sets: HashSet::new(),
+        };
+
+        while game.table.len() < 12 {
+            game.table
+                .extend(game.deck.deal().expect("This deck is missing a few cards."));
+        }
+
+        game
     }
 
-    println!("Initial table:");
-    print_table(&table);
+    /// Start-of-turn setup - make sure there are at least 12 cards on the table.
+    pub fn upkeep(&mut self) {
+        if self.table.len() < 12 {
+            self.add_cards();
+        }
+    }
 
-    while !table.is_empty() {
-        println!("{} cards on the table.", table.len());
-        let found_set = find_set_third_card(&table);
-
-        match found_set {
-            Some(cards) => {
-                debug_assert!(set::check(cards));
-                println!("Found: {}, {}, {}.", cards[0], cards[1], cards[2]);
-                for card in &cards {
-                    table.remove(card);
-                }
-
-                if table.len() < 12 {
-                    if let Some(new_cards) = deck.deal() {
-                        println!(
-                            "Dealing new cards: {}, {}, {}.",
-                            new_cards[0], new_cards[1], new_cards[2]
-                        );
-
-                        table.extend(new_cards);
-                    }
-                }
+    /// Find a set.
+    pub fn find_set(&mut self) -> bool {
+        let found_set = find_set_third_card(&self.table);
+        if let Some(cards) = found_set {
+            println!("Found: {}, {}, {}.", cards[0], cards[1], cards[2]);
+            self.sets.insert(cards);
+            for card in cards {
+                self.table.remove(&card);
             }
-            None => {
-                println!("No sets found.");
-                if let Some(new_cards) = deck.deal() {
-                    println!(
-                        "Dealing new cards: {}, {}, {}.",
-                        new_cards[0], new_cards[1], new_cards[2]
-                    );
-                    table.extend(new_cards);
-                } else {
-                    break;
-                }
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Deal three cards from the deck, if possible.
+    pub fn add_cards(&mut self) -> bool {
+        if let Some(cards) = self.deck.deal() {
+            println!(
+                "Dealing new cards: {}, {}, {}.",
+                cards[0], cards[1], cards[2]
+            );
+            self.table.extend(cards);
+            true
+        } else {
+            false
+        }
+    }
+}
+
+fn main() {
+    let mut game = Game::new();
+
+    println!("Initial table:");
+    print_table(&game.table);
+
+    loop {
+        game.upkeep();
+        if !game.find_set() {
+            // No set found, try to add some more cards.
+            if !game.add_cards() {
+                // no sets, out of cards, so the game ends.
+                break;
             }
         }
     }
 
     println!("Final table:");
-    print_table(&table);
+    print_table(&game.table);
 }
