@@ -3,6 +3,13 @@ use std::hash::Hash;
 
 use set::card::Card;
 
+fn print_table(table: &HashSet<Card>) {
+    for card in table.iter() {
+        print!("{}, ", card);
+    }
+    println!();
+}
+
 // Try all combinations of three cards.
 fn find_set_bruteforce(table: &HashSet<Card>) -> Option<[Card; 3]> {
     for (position, card1) in table.iter().enumerate() {
@@ -58,8 +65,7 @@ fn find_set_third_card(table: &HashSet<Card>) -> Option<[Card; 3]> {
 
 fn main() {
     let mut deck = set::Deck::new();
-
-    let mut table = HashSet::<set::card::Card>::new();
+    let mut table = HashSet::<Card>::new();
 
     // prepare the table
     while table.len() < 12 {
@@ -67,10 +73,7 @@ fn main() {
     }
 
     println!("Initial table:");
-    for card in &table {
-        print!("{}, ", card);
-    }
-    println!();
+    print_table(&table);
 
     while !table.is_empty() {
         println!("{} cards on the table.", table.len());
@@ -109,4 +112,7 @@ fn main() {
             }
         }
     }
+
+    println!("Final table:");
+    print_table(&table);
 }
