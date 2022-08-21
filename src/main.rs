@@ -3,6 +3,7 @@ use std::hash::Hash;
 
 use set::card::Card;
 
+// Try all combinations of three cards.
 fn find_set_bruteforce(table: &HashSet<Card>) -> Option<[Card; 3]> {
     for (position, card1) in table.iter().enumerate() {
         for card2 in table.iter().skip(position + 1) {
@@ -19,14 +20,15 @@ fn find_set_bruteforce(table: &HashSet<Card>) -> Option<[Card; 3]> {
 fn next_property<Property: Eq + Hash + Copy>(
     property1: Property,
     property2: Property,
-    mut all_properties: HashSet<Property>,
+    all_properties: &HashSet<Property>,
 ) -> Property {
     if property1 == property2 {
         property1
     } else {
-        all_properties.remove(&property1);
-        all_properties.remove(&property2);
-        *all_properties.iter().next().expect("Not enough properties")
+        *all_properties
+            .difference(&HashSet::from([property1, property2]))
+            .next()
+            .expect("Not enough properties")
     }
 }
 
@@ -41,10 +43,10 @@ fn find_set_third_card(table: &HashSet<Card>) -> Option<[Card; 3]> {
 
     for (position, card1) in table.iter().enumerate() {
         for card2 in table.iter().skip(position + 1) {
-            let color3 = next_property(card1.color, card2.color, colors.clone());
-            let count3 = next_property(card1.count, card2.count, counts.clone());
-            let shape3 = next_property(card1.shape, card2.shape, shapes.clone());
-            let fill3 = next_property(card1.fill, card2.fill, fills.clone());
+            let color3 = next_property(card1.color, card2.color, &colors);
+            let count3 = next_property(card1.count, card2.count, &counts);
+            let shape3 = next_property(card1.shape, card2.shape, &shapes);
+            let fill3 = next_property(card1.fill, card2.fill, &fills);
             let card3 = Card::new(color3, count3, shape3, fill3);
             if table.contains(&card3) {
                 return Some([*card1, *card2, card3]);
@@ -52,7 +54,6 @@ fn find_set_third_card(table: &HashSet<Card>) -> Option<[Card; 3]> {
         }
     }
     None
-
 }
 
 fn main() {
@@ -77,6 +78,7 @@ fn main() {
 
         match found_set {
             Some(cards) => {
+                debug_assert!(set::check(cards));
                 println!("Found: {}, {}, {}.", cards[0], cards[1], cards[2]);
                 for card in &cards {
                     table.remove(card);
