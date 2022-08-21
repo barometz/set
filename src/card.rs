@@ -9,12 +9,16 @@ pub enum Color {
     Red,
 }
 
+pub const COLORS : [Color; 3] = [Color::Green, Color::Purple, Color::Red];
+
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum Count {
     One,
     Two,
     Three,
 }
+
+pub const COUNTS: [Count; 3] = [Count::One, Count::Two, Count::Three];
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum Shape {
@@ -23,12 +27,16 @@ pub enum Shape {
     Diamond,
 }
 
+pub const SHAPES: [Shape; 3] = [Shape::Oval, Shape::Wave, Shape::Diamond];
+
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum Fill {
     Open,
     Dashed,
     Full,
 }
+
+pub const FILLS: [Fill; 3] = [Fill::Open, Fill::Dashed, Fill::Full];
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Card {

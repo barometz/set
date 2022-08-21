@@ -1,3 +1,6 @@
+//! The rules of the game. Provides cards, a self-shuffling deck, and set
+//! validation.
+
 use rand::seq::SliceRandom;
 use std::collections::HashSet;
 pub mod card;
@@ -35,7 +38,7 @@ impl Default for Deck {
     }
 }
 
-pub fn all_cards() -> HashSet<card::Card> {
+fn all_cards() -> HashSet<card::Card> {
     let mut cards = HashSet::<card::Card>::new();
 
     for color in [card::Color::Green, card::Color::Purple, card::Color::Red] {
