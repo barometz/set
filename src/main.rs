@@ -1,3 +1,4 @@
+use lazy_static::lazy_static;
 use std::collections::HashSet;
 use std::hash::Hash;
 
@@ -42,18 +43,19 @@ fn next_property<Property: Eq + Hash + Copy>(
 /// Find a set by taking any two cards, determining what third card you need,
 /// and finding that.
 fn find_set_third_card(table: &HashSet<Card>) -> Option<[Card; 3]> {
-    // this feels like a lazy-static shaped problem
-    let colors: HashSet<set::card::Color> = set::card::COLORS.into();
-    let counts: HashSet<set::card::Count> = set::card::COUNTS.into();
-    let shapes: HashSet<set::card::Shape> = set::card::SHAPES.into();
-    let fills: HashSet<set::card::Fill> = set::card::FILLS.into();
+    lazy_static! {
+        static ref COLORS: HashSet<set::card::Color> = set::card::COLORS.into();
+        static ref COUNTS: HashSet<set::card::Count> = set::card::COUNTS.into();
+        static ref SHAPES: HashSet<set::card::Shape> = set::card::SHAPES.into();
+        static ref FILLS: HashSet<set::card::Fill> = set::card::FILLS.into();
+    }
 
     for (position, card1) in table.iter().enumerate() {
         for card2 in table.iter().skip(position + 1) {
-            let color3 = next_property(card1.color, card2.color, &colors);
-            let count3 = next_property(card1.count, card2.count, &counts);
-            let shape3 = next_property(card1.shape, card2.shape, &shapes);
-            let fill3 = next_property(card1.fill, card2.fill, &fills);
+            let color3 = next_property(card1.color, card2.color, &COLORS);
+            let count3 = next_property(card1.count, card2.count, &COUNTS);
+            let shape3 = next_property(card1.shape, card2.shape, &SHAPES);
+            let fill3 = next_property(card1.fill, card2.fill, &FILLS);
             let card3 = Card::new(color3, count3, shape3, fill3);
             if table.contains(&card3) {
                 return Some([*card1, *card2, card3]);
